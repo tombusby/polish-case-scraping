@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import scrapy, urlparse
+import scrapy, urlparse, pprint
 from scrapy.http.request import Request
 
 
@@ -9,6 +9,7 @@ class WiktionarySpider(scrapy.Spider):
     start_urls = ['https://en.wiktionary.org/wiki/Category:Polish_nouns']
 
     def parse(self, response):
+        # return Request("https://en.wiktionary.org/wiki/biedak", callback=self.parse_word)
         # Get the domain name and the protocol from the response URL
         reponse_url_components = urlparse.urlparse(response.url)
         base_url = "{}://{}".format(reponse_url_components.scheme, reponse_url_components.netloc)
@@ -23,4 +24,23 @@ class WiktionarySpider(scrapy.Spider):
             pass
 
     def parse_word(self, response):
-        print "\tPROCESSING:", response.url
+        word_details = response.xpath('.//h2[./span[@id="Polish"]]/following::p[./strong[contains(@class, "headword")]][1]')
+        word = word_details.xpath('./strong[contains(@class, "headword")]/text()').extract()[0]
+        gender = "".join(word_details.xpath('./span[contains(@class, "gender")]//text()').extract())
+        case_forms = self._get_case_forms(response)
+        return {
+            'word': word,
+            'gender': gender,
+            'url': response.url,
+            'case_forms': case_forms
+        }
+
+    def _get_case_forms(self, response):
+        forms = {}
+        declension_table = response.xpath('.//h2[./span[@id="Polish"]]/following::div[contains(@class, "inflection-table-noun")][1]//table')
+        headers = declension_table.xpath('.//tr[1]/th[string-length(text()) > 0]/text()').extract()
+        for row in declension_table.xpath('.//tr[position()>1]'):
+            case_name = row.css('th::text').extract()[0]
+            case_forms = row.xpath('.//td//text()').extract()
+            forms[case_name] = dict(zip(headers, case_forms))
+        return forms
