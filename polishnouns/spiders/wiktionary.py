@@ -9,7 +9,6 @@ class WiktionarySpider(scrapy.Spider):
     start_urls = ['https://en.wiktionary.org/wiki/Category:Polish_nouns']
 
     def parse(self, response):
-        # return Request("https://en.wiktionary.org/wiki/biedak", callback=self.parse_word)
         # Get the domain name and the protocol from the response URL
         reponse_url_components = urlparse.urlparse(response.url)
         base_url = "{}://{}".format(reponse_url_components.scheme, reponse_url_components.netloc)
