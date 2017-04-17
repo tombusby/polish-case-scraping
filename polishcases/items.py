@@ -8,7 +8,7 @@
 import scrapy
 
 
-class PolishnounsItem(scrapy.Item):
+class PolishcasesItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
     pass

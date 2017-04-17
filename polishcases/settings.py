@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Scrapy settings for polishnouns project
+# Scrapy settings for polishcases project
 #
 # For simplicity, this file contains only settings considered important or
 # commonly used. You can find more settings consulting the documentation:
@@ -9,14 +9,14 @@
 #     http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 #     http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
 
-BOT_NAME = 'polishnouns'
+BOT_NAME = 'polishcases'
 
-SPIDER_MODULES = ['polishnouns.spiders']
-NEWSPIDER_MODULE = 'polishnouns.spiders'
+SPIDER_MODULES = ['polishcases.spiders']
+NEWSPIDER_MODULE = 'polishcases.spiders'
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-#USER_AGENT = 'polishnouns (+http://www.yourdomain.com)'
+#USER_AGENT = 'polishcases (+http://www.yourdomain.com)'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False
@@ -47,13 +47,13 @@ ROBOTSTXT_OBEY = False
 # Enable or disable spider middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
 #SPIDER_MIDDLEWARES = {
-#    'polishnouns.middlewares.PolishnounsSpiderMiddleware': 543,
+#    'polishcases.middlewares.PolishcasesSpiderMiddleware': 543,
 #}
 
 # Enable or disable downloader middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 #DOWNLOADER_MIDDLEWARES = {
-#    'polishnouns.middlewares.MyCustomDownloaderMiddleware': 543,
+#    'polishcases.middlewares.MyCustomDownloaderMiddleware': 543,
 #}
 
 # Enable or disable extensions
@@ -65,7 +65,7 @@ ROBOTSTXT_OBEY = False
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 #ITEM_PIPELINES = {
-#    'polishnouns.pipelines.PolishnounsPipeline': 300,
+#    'polishcases.pipelines.PolishcasesPipeline': 300,
 #}
 
 # Enable and configure the AutoThrottle extension (disabled by default)

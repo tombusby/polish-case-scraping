@@ -3,8 +3,8 @@ import scrapy, urlparse, pprint
 from scrapy.http.request import Request
 
 
-class WiktionarySpider(scrapy.Spider):
-    name = "wiktionary"
+class WiktionaryNounSpider(scrapy.Spider):
+    name = "wiktionary-noun"
     allowed_domains = ["en.wiktionary.org"]
     start_urls = ['https://en.wiktionary.org/wiki/Category:Polish_nouns']
 
