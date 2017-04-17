@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import scrapy, urlparse, pprint
+import scrapy, urlparse
 from scrapy.http.request import Request
 
 
