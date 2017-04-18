@@ -2,13 +2,6 @@
 import scrapy, urlparse, re, itertools
 from scrapy.http.request import Request
 
-##################### REMOVE ME #####################
-from pprint import pprint
-
-def PRINT_TABLE(table):
-    pprint([list(i) for i in zip(*table)])
-##################### REMOVE ME #####################
-
 
 class DeclensionTable(object):
 
@@ -19,8 +12,6 @@ class DeclensionTable(object):
     def __init__(self, table_node):
         self._process_column_headers(table_node)
         self._process_html_table_rows(table_node)
-        print self.column_headers
-        PRINT_TABLE(self.table_data)
 
     def _clean_cell_text(self, cell):
         string = ''.join(cell.xpath('.//text()').extract())
@@ -60,9 +51,38 @@ class DeclensionTable(object):
                 x += colspan
             x = 0
             y += 1
+        self._expand_comma_separated()
+
+    def _expand_comma_separated(self):
+        new_column_headers = []
+        new_table_data = []
+        for (number, gender), row in zip(self.column_headers, self.table_data):
+            new_case_names = []
+            new_row = []
+            for case, form in zip(self.case_names, row):
+                for split_case in re.split("\s*,\s*", case):
+                    new_case_names.append(split_case)
+                    new_row.append(form)
+            for split_gender in re.split("\s*,\s*", gender):
+                new_column_headers.append((number, split_gender))
+                new_table_data.append(new_row)
+        self.case_names = new_case_names
+        self.column_headers = new_column_headers
+        self.table_data = new_table_data
 
     def export_dict(self):
-        pass
+        def ensure_dict_initialised(tree, field_list):
+            current_node = tree
+            for field in field_list:
+                if field not in current_node.keys():
+                    current_node[field] = {}
+                current_node = current_node[field]
+        output = {}
+        for (number, gender), row in zip(self.column_headers, self.table_data):
+            for case, form in zip(self.case_names, row):
+               ensure_dict_initialised(output, [case, number, gender])
+               output[case][number][gender] = form
+        return output
 
 class WiktionaryAdjectiveSpider(scrapy.Spider):
     name = 'wiktionary-adjective'
@@ -73,16 +93,25 @@ class WiktionaryAdjectiveSpider(scrapy.Spider):
         # Get the domain name and the protocol from the response URL
         reponse_url_components = urlparse.urlparse(response.url)
         base_url = '{}://{}'.format(reponse_url_components.scheme, reponse_url_components.netloc)
-
-        return Request('https://en.wiktionary.org/wiki/bogaty#Polish', callback=self.parse_word)
-
-        # # Crawl the next page
-        # try:
-        #     next_page = response.css('#mw-pages a[href*=pagefrom]::attr(href)').extract()[0]
-        #     yield Request(urlparse.urljoin(base_url, next_page), callback=self.parse)
-        # except IndexError:
-        #     pass
+        # Crawl the words on the page
+        for url in response.css("#mw-pages li a::attr(href)").extract():
+            yield Request(urlparse.urljoin(base_url, url), callback=self.parse_word)
+        # Crawl the next page
+        try:
+            next_page = response.css('#mw-pages a[href*=pagefrom]::attr(href)').extract()[0]
+            yield Request(urlparse.urljoin(base_url, next_page), callback=self.parse)
+        except IndexError:
+            pass
 
     def parse_word(self, response):
+        word_details = response.xpath('.//h2[./span[@id="Polish"]]/following::p[./strong[contains(@class, "headword")]][1]')
+        word = word_details.xpath('./strong[contains(@class, "headword")]/text()').extract()[0]
+        gender = "".join(word_details.xpath('./span[contains(@class, "gender")]//text()').extract())
         declension_table = response.xpath('.//h2[./span[@id="Polish"]]/following::div[contains(@class, "inflection-table-adj")][1]//table')
         case_forms = DeclensionTable(declension_table).export_dict() if declension_table else {}
+        return {
+            'word': word,
+            'gender': gender,
+            'url': response.url,
+            'case_forms': case_forms
+        }
