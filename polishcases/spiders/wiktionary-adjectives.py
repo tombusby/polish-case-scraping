@@ -80,8 +80,8 @@ class DeclensionTable(object):
         output = {}
         for (number, gender), row in zip(self.column_headers, self.table_data):
             for case, form in zip(self.case_names, row):
-               ensure_dict_initialised(output, [case, number, gender])
-               output[case][number][gender] = form
+               ensure_dict_initialised(output, [number, gender, case])
+               output[number][gender][case] = form
         return output
 
 class WiktionaryAdjectiveSpider(scrapy.Spider):

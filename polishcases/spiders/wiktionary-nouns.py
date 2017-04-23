@@ -41,5 +41,8 @@ class WiktionaryNounSpider(scrapy.Spider):
         for row in declension_table.xpath('.//tr[position()>1]'):
             case_name = row.css('th::text').extract()[0]
             case_forms = row.xpath('.//td//text()').extract()
-            forms[case_name] = dict(zip(headers, case_forms))
+            for number, case_form in zip(headers, case_forms):
+                if number not in forms:
+                    forms[number] = {}
+                forms[number][case_name] = case_form
         return forms
